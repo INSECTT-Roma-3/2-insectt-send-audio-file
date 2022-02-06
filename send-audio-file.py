@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-#come usarlo: python3 send-audio-file.py --host 192.168.2.66 --port 21 --user media3tech --password clastemas --path ../INSECTT/ --ftppath INSECTT
+#come usarlo: python3 send-audio-file.py --host 192.168.2.66 --port 21 --user media3tech --password clastemas --path ../INSECTT/ --ftppath INSECTT --mlpath MLinsectt
 
 """Upload either a file or all files in a directory to ftp server."""
 
 import argparse
 import logging
 import os
+import shutil
 
 from ftplib import FTP_TLS
 
@@ -22,6 +23,12 @@ def main(args):
     ftps.prot_p()
 
     # Note: this assumes that all files in the given directory should be uploaded
+    if not os.path.exists(args.mlpath):
+        os.mkdir(args.mlpath)
+        print("Directory " , args.mlpath ,  " Created ")
+    else:    
+        print("Directory " , args.mlpath ,  " already exists")
+    
     if os.path.isdir(args.path):
         upload_directory(ftps, args.path, args.ftppath)
     elif os.path.isfile(args.path, args.ftppath):
@@ -40,6 +47,7 @@ def upload_directory(ftps, path, ftppath):
 
     
     basenames = os.listdir(args.path)
+    mlpath = os.listdir(args.mlpath)
     for i, basename in enumerate(basenames):
         fname = os.path.join(args.path, basename)
         with open(fname, 'rb') as fp:
@@ -50,6 +58,8 @@ def upload_directory(ftps, path, ftppath):
                 fname,
             )
             ftps.storbinary('STOR {}'.format(ftppath), fp)
+            logging.debug('Moving file Mchine Learning directory: %s', args.mlpath)
+            shutil.move(str(basenames), str(mlpath))
                        
            
 
@@ -63,8 +73,13 @@ def upload_file(ftps, path, ftppath):
     
     logging.debug('Uploading file: %s', args.path)
     basename = os.path.basename(args.path)
+    mlpath = os.listdir(args.mlpath)
+
     with open(args.path, 'rb') as fp:
         ftps.storbinary('STOR {}'.format(ftppath), fp)
+        logging.debug('Moving file Mchine Learning directory: %s', args.mlpath)
+        shutil.move(str(basenames), str(mlpath))
+
         
 # Change directories - create if it doesn't exist
 def chdir(ftps, dir): 
@@ -110,6 +125,10 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--ftppath',
+        help='Path (either a single file or a directory with files to be uploaded)',
+    )
+    parser.add_argument(
+        '--mlpath',
         help='Path (either a single file or a directory with files to be uploaded)',
     )
     args = parser.parse_args()
