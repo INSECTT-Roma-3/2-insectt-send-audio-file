@@ -49,7 +49,7 @@ def upload_directory(ftps, path, ftppath):
                 len(basenames),
                 fname,
             )
-            ftps.storbinary('STOR {}'.format(basename), fp)
+            ftps.storbinary('STOR {}'.format(ftppath), fp)
                        
            
 
@@ -64,7 +64,7 @@ def upload_file(ftps, path, ftppath):
     logging.debug('Uploading file: %s', args.path)
     basename = os.path.basename(args.path)
     with open(args.path, 'rb') as fp:
-        ftps.storbinary('STOR {}'.format(basename), fp)
+        ftps.storbinary('STOR {}'.format(ftppath), fp)
         
 # Change directories - create if it doesn't exist
 def chdir(ftps, dir): 
