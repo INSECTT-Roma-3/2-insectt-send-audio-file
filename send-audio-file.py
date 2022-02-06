@@ -23,19 +23,22 @@ def main(args):
 
     # Note: this assumes that all files in the given directory should be uploaded
     if os.path.isdir(args.path):
-        upload_directory(ftps, args.path)
-    elif os.path.isfile(args.path):
-        upload_file(ftps, args.path)
+        upload_directory(ftps, args.path, args.ftppath)
+    elif os.path.isfile(args.path, args.ftppath):
+        upload_file(ftps, args.path,  args.ftppath)
 
     ftps.quit()
     logging.debug('Connection closed')
 
 
-def upload_directory(ftps, path):
+def upload_directory(ftps, path, ftppath):
     """Upload all files in a given directory.
     :param path: Path to the directory that contains files to upload.
     :type path: str
     """
+    chdir(ftps, ftppath)
+
+    
     basenames = os.listdir(args.path)
     for i, basename in enumerate(basenames):
         fname = os.path.join(args.path, basename)
@@ -51,15 +54,40 @@ def upload_directory(ftps, path):
            
 
 
-def upload_file(ftps, path):
+def upload_file(ftps, path, ftppath):
     """Upload file to ftp server.
     :param path: Path to the file to be uploaded.
     :type path: str
     """
+    chdir(ftps, path)
+    
     logging.debug('Uploading file: %s', args.path)
     basename = os.path.basename(args.path)
     with open(args.path, 'rb') as fp:
         ftps.storbinary('STOR {}'.format(basename), fp)
+        
+# Change directories - create if it doesn't exist
+def chdir(ftps, dir): 
+    print('cazzo')
+    if dir in ftps.nlst() : #check if 'foo' exist inside 'www'
+        print ('Directory in ftp exist')
+        ftps.cwd(dir)  # change into "foo" directory
+        ftps.retrlines('LIST') #list directory contents
+
+    else : 
+        print ('Create directory on ftp')
+        ftps.mkd(dir) #Create a new directory called foo on the server.
+        ftps.cwd(dir) # change into 'foo' directory
+        ftps.retrlines('LIST') #list subdirectory contents
+
+# Check if directory exists (in current location)
+def directory_exists(ftps, dir):
+    filelist = []
+    ftps.retrlines('LIST',filelist.append)
+    for f in filelist:
+        if f.split()[-1] == dir and f.upper().startswith('D'):
+            return True
+    return False
 
 
 if __name__ == '__main__':
@@ -79,6 +107,10 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--password', help='User password')
     parser.add_argument(
         '--path',
+        help='Path (either a single file or a directory with files to be uploaded)',
+    )
+    parser.add_argument(
+        '--ftppath',
         help='Path (either a single file or a directory with files to be uploaded)',
     )
     args = parser.parse_args()
