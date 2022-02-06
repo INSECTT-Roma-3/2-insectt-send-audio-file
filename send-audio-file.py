@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#come usarlo: python3 main.py --host 192.168.2.66 --port 21 --user media3tech --password clastemas --path ../INSECTT/
+#come usarlo: python3 send-audio-file.py --host 192.168.2.66 --port 21 --user media3tech --password clastemas --path ../INSECTT/ --ftppath INSECTT
 
 """Upload either a file or all files in a directory to ftp server."""
 
@@ -68,7 +68,6 @@ def upload_file(ftps, path, ftppath):
         
 # Change directories - create if it doesn't exist
 def chdir(ftps, dir): 
-    print('cazzo')
     if dir in ftps.nlst() : #check if 'foo' exist inside 'www'
         print ('Directory in ftp exist')
         ftps.cwd(dir)  # change into "foo" directory
