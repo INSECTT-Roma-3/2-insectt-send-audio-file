@@ -54,12 +54,12 @@ def upload_directory(ftps, path, ftppath):
             logging.debug(
                 '(%d/%d) Uploading file: %s',
                 i + 1,
-                len(basenames),
+                len(basename),
                 fname,
             )
             ftps.storbinary('STOR {}'.format(ftppath), fp)
-            logging.debug('Moving file Mchine Learning directory: %s', args.mlpath)
-            shutil.move(str(basenames), str(mlpath))
+            logging.debug('Moving file Mchine Learning directory: %s', args.path + basename + ' in ' + args.mlpath)
+            shutil.move(str(args.path) + basename, str(args.mlpath))
                        
            
 
@@ -77,8 +77,8 @@ def upload_file(ftps, path, ftppath):
 
     with open(args.path, 'rb') as fp:
         ftps.storbinary('STOR {}'.format(ftppath), fp)
-        logging.debug('Moving file Mchine Learning directory: %s', args.mlpath)
-        shutil.move(str(basenames), str(mlpath))
+        logging.debug('Moving file Mchine Learning directory: %s', args.path + basename + ' in ' + args.mlpath)
+        shutil.move(str(args.path) + basename, str(args.mlpath))
 
         
 # Change directories - create if it doesn't exist
